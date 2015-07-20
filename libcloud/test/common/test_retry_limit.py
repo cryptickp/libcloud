@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import socket
 import tempfile
 
 from mock import Mock, patch, MagicMock
@@ -31,24 +30,7 @@ CONFLICT_RESPONSE_STATUS = [
 SIMPLE_RESPONSE_STATUS = ('HTTP/1.1', 429, 'CONFLICT')
 
 
-class FailedRequestRetryTestCase(unittest.TestCase):
-
-    def _raise_socket_error(self):
-        raise socket.gaierror('')
-
-    def test_retry_connection(self):
-        con = Connection(timeout=1, retry_delay=0.1)
-        con.connection = Mock()
-        connect_method = 'libcloud.common.base.Connection.request'
-
-        with patch(connect_method) as mock_connect:
-            try:
-                mock_connect.side_effect = socket.gaierror('')
-                con.request('/')
-            except socket.gaierror:
-                pass
-            except Exception:
-                self.fail('Failed to raise socket exception')
+class RaiseRateLimitTestCase(unittest.TestCase):
 
     def test_rate_limit_error(self):
         sock = Mock()
